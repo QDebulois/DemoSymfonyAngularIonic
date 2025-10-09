@@ -1,0 +1,96 @@
+### --- Project --- ###
+
+
+
+### --- Symfony --- ###
+
+###> symfony/framework-bundle ###
+/Symfony/.env.local
+/Symfony/.env.local.php
+/Symfony/.env.*.local
+/Symfony/config/secrets/prod/prod.decrypt.private.php
+/Symfony/public/bundles/
+/Symfony/var/
+/Symfony/vendor/
+###< symfony/framework-bundle ###
+
+###> phpunit/phpunit ###
+/Symfony/phpunit.xml
+/Symfony/.phpunit.cache/
+###< phpunit/phpunit ###
+
+###> symfony/asset-mapper ###
+/Symfony/public/assets/
+/Symfony/assets/vendor/
+###< symfony/asset-mapper ###
+
+### --- IONIC --- ###
+
+# Specifies intentionally untracked files to ignore when using Git
+# http://git-scm.com/docs/gitignore
+
+/Ionic/*~
+/Ionic/*.sw[mnpcod]
+/Ionic/.tmp
+/Ionic/*.tmp
+/Ionic/*.tmp.*
+/Ionic/UserInterfaceState.xcuserstate
+/Ionic/$RECYCLE.BIN/
+
+/Ionic/*.log
+/Ionic/log.txt
+
+/Ionic/.sourcemaps
+/Ionic/.versions
+/Ionic/coverage
+
+# Ionic
+/Ionic/.ionic
+/Ionic/www
+/Ionic/platforms
+/Ionic/plugins
+
+# Compiled output
+/Ionic/dist
+/Ionic/tmp
+/Ionic/out-tsc
+/Ionic/bazel-out
+
+# Node
+/Ionic/node_modules
+/Ionic/npm-debug.log
+/Ionic/yarn-error.log
+
+# IDEs and editors
+/Ionic/.idea/
+/Ionic/.project
+/Ionic/.classpath
+/Ionic/.c9/
+/Ionic/*.launch
+/Ionic/.settings/
+/Ionic/*.sublime-project
+/Ionic/*.sublime-workspace
+
+# Visual Studio Code
+/Ionic/.vscode/*
+/Ionic/!.vscode/settings.json
+/Ionic/!.vscode/tasks.json
+/Ionic/!.vscode/launch.json
+/Ionic/!.vscode/extensions.json
+/Ionic/.history/*
+
+# Miscellaneous
+/Ionic/.angular
+/Ionic/.angular/cache
+/Ionic/.sass-cache/
+/Ionic/.nx
+/Ionic/.nx/cache
+/Ionic/connect.lock
+/Ionic/coverage
+/Ionic/libpeerconnection.log
+/Ionic/testem.log
+/Ionic/typings
+
+# System files
+/Ionic/.DS_Store
+/Ionic/Thumbs.db
