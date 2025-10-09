@@ -1,0 +1,68 @@
+{
+  "name": "Symfony",
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "ng": "cd assets/angular-elements && ng",
+    "ng-start": "ng serve",
+    "ng-build": "ng build",
+    "ng-watch": "ng build --watch --configuration development",
+    "ng-test": "ng test",
+
+    "dev-server": "encore dev-server",
+    "dev": "encore dev",
+    "watch": "encore dev --watch",
+    "build": "encore production --progress"
+  },
+  "dependencies": {
+    "@angular/common": "^20.0.0",
+    "@angular/compiler": "^20.0.0",
+    "@angular/core": "^20.0.0",
+    "@angular/elements": "^20.0.0",
+    "@angular/forms": "^20.0.0",
+    "@angular/platform-browser": "^20.0.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.15.0",
+
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.5",
+    "choices.js": "^11.1.0",
+    "ckeditor5": "^45.0.0",
+    "datatables.net": "^2.2.2",
+    "datatables.net-bs5": "^2.2.2",
+    "flatpickr": "^4.6.13",
+    "sweetalert2": "^11.6.13",
+    "tarteaucitronjs": "^1.0.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^20.0.0",
+    "@angular/cli": "^20.0.0",
+    "@angular/compiler-cli": "^20.0.0",
+    "@types/jasmine": "~5.1.0",
+    "jasmine-core": "~5.1.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "typescript": "~5.8.0",
+    "vite": "^6.0.0",
+
+    "@babel/core": "^7.17.0",
+    "@babel/preset-env": "^7.16.0",
+    "@hotwired/stimulus": "^3.0.0",
+    "@hotwired/turbo": "^7.1.0 || ^8.0",
+    "@symfony/stimulus-bridge": "^3.2.0 || ^4.0.0",
+    "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets",
+    "@symfony/webpack-encore": "^5.0.0",
+    "core-js": "^3.38.0",
+    "file-loader": "^6.0.0",
+    "fos-router": "./vendor/friendsofsymfony/jsrouting-bundle/Resources/",
+    "regenerator-runtime": "^0.13.9",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^5.1.0",
+    "webpack-notifier": "^1.15.0"
+  }
+}
