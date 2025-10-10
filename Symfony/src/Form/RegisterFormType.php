@@ -4,10 +4,10 @@ namespace App\Form;
 
 use App\Enum\RoleEnum;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -47,7 +47,7 @@ class RegisterFormType extends AbstractType
                     'attr'       => ['class' => 'form-control'],
                 ],
             ])
-            ->add('submit', ButtonType::class, [
+            ->add('submit', SubmitType::class, [
                 'label' => 'S\'inscrire',
                 'attr'  => ['class' => 'btn btn-primary'],
             ])

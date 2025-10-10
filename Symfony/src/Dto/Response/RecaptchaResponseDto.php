@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Dto\Cms\Response;
+namespace App\Dto\Response;
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
