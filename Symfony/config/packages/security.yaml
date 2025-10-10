@@ -2,16 +2,102 @@ security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        users_in_memory: { memory: null }
+        # used to reload user from session & other features (e.g. switch_user)
+        admin_provider:
+            entity:
+                class: App\Entity\Admin
+                property: email
+        customer_provider:
+            entity:
+                class: App\Entity\Customer
+                property: email
+        seller_provider:
+            entity:
+                class: App\Entity\Seller
+                property: username
+        redeemer_provider:
+            entity:
+                class: App\Entity\Redeemer
+                property: username
+
+        chain_provider:
+            chain:
+                providers: [admin_provider, seller_provider, redeemer_provider, customer_provider]
+
+    role_hierarchy:
+        ROLE_ADMIN:    []
+        ROLE_SELLER:   []
+        ROLE_REDEEMER: []
+        ROLE_CUSTOMER: []
+
     firewalls:
+        api_login:
+            pattern: ^/api/auth/login
+            stateless: true
+            json_login:
+                provider: chain_provider
+                check_path: api_login
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        api_refresh:
+            pattern: ^/api/auth/refresh
+            stateless: true
+            refresh_jwt:
+                provider: chain_provider
+                check_path: gesdinet_jwt_refresh_token
+        api:
+            pattern:   ^/api
+            lazy: true
+            stateless: false
+            jwt:
+                provider: chain_provider
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
+        admin:
+            context: main
+            pattern: ^/admin
             lazy: true
-            provider: users_in_memory
+            stateless: false
+            provider: admin_provider
+            user_checker: App\Security\AdminChecker
+            entry_point: form_login
+            form_login:
+                enable_csrf: true
+                csrf_token_id: 'authenticate'
+                login_path: admin_login
+                check_path: admin_login
+            custom_authenticators:
+                - App\Security\AdminAuthenticator
+            login_throttling:
+                max_attempts: 6
+                interval: '1 minute'
+            logout:
+                path: admin_logout
+                target: admin_login
+        customer:
+            context: main
+            pattern: ^/
+            lazy: true
+            stateless: false
+            provider: customer_provider
+            entry_point: form_login
+            form_login:
+                enable_csrf: true
+                csrf_token_id: 'authenticate'
+                login_path: customer_login
+                check_path: customer_login
+            custom_authenticators:
+                - App\Security\CustomerAuthenticator
+            login_throttling:
+                max_attempts: 6
+                interval: '1 minute'
+            logout:
+                path: customer_logout
+                target: customer_login
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -22,8 +108,8 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
 
 when@test:
     security:

@@ -12,35 +12,46 @@ type User = {
   selector: 'app-test',
   imports: [],
   template: `
-    <p>Voici {{ title }}</p>
+    <h4>{{ title }}</h4>
 
-    <p>
-      {{ input() }}
-    </p>
+    <div class="mb-3">
+      <p>
+        Input: <strong>{{ input() }}</strong>
+      </p>
 
-    <p>
-      {{ text() }}
-    </p>
+      <p>
+        Signal: <strong>{{ text() }}</strong>
+      </p>
 
-    <button (click)="reload()">Reload</button>
-    <button (click)="emit()">Emit</button>
+      <button class="btn btn-primary me-1" (click)="reload()">Charger</button>
+      <button class="btn btn-primary" (click)="emit()">Emit</button>
+    </div>
 
-    <p>
-      {{ currentPage() }}
-    </p>
-    @if (usersResource.isLoading()) {
-      <div>Loading users...</div>
-    } @else if (usersResource.error()) {
-      <div>Error: </div>
-    } @else {
-      <ul>
-        @for (user of usersResource.value(); track user.id) {
-          <li>{{ user.name }} ({{ user.email }})</li>
+    <div>
+      <p>
+        Page: {{ currentPage() }}
+      </p>
+
+      <div>
+        @if (usersResource.isLoading()) {
+          <span>Chargement...</span>
+        } @else if (usersResource.error()) {
+          <span>Error</span>
+        } @else {
+          <ul>
+            @for (user of usersResource.value(); track user.id) {
+              <li>{{ user.name }} ({{ user.email }})</li>
+            }
+          </ul>
         }
-      </ul>
-      <button (click)="nextPage()">Next Page</button>
-      <button (click)="usersResource.reload()">Reload Manually</button>
-    }
+      </div>
+
+      <p>
+        <button class="btn btn-primary me-1" [disabled]="currentPage() <= 1" [class.disabled] (click)="prevPage()">Précédent</button>
+        <button class="btn btn-primary me-1" (click)="nextPage()">Suivant</button>
+        <button class="btn btn-primary" (click)="usersResource.reload()">Récharger</button>
+      </p>
+    </div>
 
   `,
   styles: [],
@@ -51,7 +62,7 @@ export class TestComponent {
 
   httpClient = inject(HttpClient);
 
-  title = 'angular élément';
+  title = 'Angular élément';
 
   state = signal<{ text: string }>({
     text: '',
@@ -82,6 +93,12 @@ export class TestComponent {
   //   { initialValue: '' }
   // );
 
+  prevPage() {
+    if (this.currentPage() <= 1) return;
+
+    this.currentPage.update(current => current - 1);
+  }
+
   nextPage() {
     this.currentPage.update(current => current + 1);
   }
@@ -93,6 +110,6 @@ export class TestComponent {
   }
 
   emit() {
-    this.output.emit('Output from angular elements ' + Math.floor(Math.random() * 100));
+    this.output.emit('Hello Symfony from Angular ' + Math.floor(Math.random() * 100));
   }
 }
