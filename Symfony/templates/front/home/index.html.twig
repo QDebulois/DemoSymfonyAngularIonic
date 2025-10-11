@@ -1,11 +1,13 @@
-{% extends 'base.html.twig' %}
+{% extends 'front/base.html.twig' %}
 
 {% block title %}Hello HomeController!{% endblock %}
 
 {% block body %}
-
-
   <main class="container">
+
+    {% if msg is defined and msg %}
+      <div class="alert alert-success">{{ msg }}</div>
+    {% endif %}
 
     <div class="card">
       <div class="card-header">
@@ -24,11 +26,9 @@
     </div>
 
   </main>
-
 {% endblock %}
 
 {% block scripts %}
-
   <script>
     const angularOutput = document.getElementById('angularOutput');
     const angularTest = document.getElementById('angularTest');
@@ -37,5 +37,4 @@
       angularOutput.innerText = e.detail;
     });
   </script>
-
 {% endblock %}

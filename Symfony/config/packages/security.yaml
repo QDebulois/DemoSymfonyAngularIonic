@@ -39,7 +39,7 @@ security:
             stateless: true
             json_login:
                 provider: chain_provider
-                check_path: api_login
+                check_path: api_auth_login
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
         api_refresh:
@@ -50,7 +50,7 @@ security:
                 check_path: gesdinet_jwt_refresh_token
         api:
             pattern:   ^/api
-            lazy: true
+            # lazy: true
             stateless: false
             jwt:
                 provider: chain_provider
@@ -68,16 +68,15 @@ security:
             form_login:
                 enable_csrf: true
                 csrf_token_id: 'authenticate'
-                login_path: admin_login
-                check_path: admin_login
-            custom_authenticators:
-                - App\Security\AdminAuthenticator
+                login_path: app_admin_login
+                check_path: app_admin_login
+            custom_authenticators: [App\Security\AdminAuthenticator]
             login_throttling:
                 max_attempts: 6
                 interval: '1 minute'
             logout:
-                path: admin_logout
-                target: admin_login
+                path: app_logout
+                target: app_home
         customer:
             context: main
             pattern: ^/
@@ -88,16 +87,15 @@ security:
             form_login:
                 enable_csrf: true
                 csrf_token_id: 'authenticate'
-                login_path: customer_login
-                check_path: customer_login
-            custom_authenticators:
-                - App\Security\CustomerAuthenticator
+                login_path: app_customer_login
+                check_path: app_customer_login
+            custom_authenticators: [App\Security\CustomerAuthenticator]
             login_throttling:
                 max_attempts: 6
                 interval: '1 minute'
             logout:
-                path: customer_logout
-                target: customer_login
+                path: app_logout
+                target: app_home
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -107,9 +105,13 @@ security:
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
-    access_control:
-        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
-        - { path: ^/admin, roles: ROLE_ADMIN }
+    access_control: [
+        { path: ^/admin/login, roles: PUBLIC_ACCESS },
+        { path: ^/admin, roles: ROLE_ADMIN },
+        { path: ^/api/auth/refresh, roles: PUBLIC_ACCESS },
+        { path: ^/api/auth/login, roles: PUBLIC_ACCESS },
+        { path: ^/api, roles: IS_AUTHENTICATED_REMEMBERED },
+    ]
 
 when@test:
     security:

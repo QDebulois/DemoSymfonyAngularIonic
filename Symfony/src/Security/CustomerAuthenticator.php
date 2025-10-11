@@ -2,8 +2,6 @@
 
 namespace App\Security;
 
-use App\Enum\Website\TemplateEnum;
-use App\Service\Cms\Entity\UrlService;
 use App\Service\RecaptchaService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +18,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 
 class CustomerAuthenticator extends AbstractAuthenticator
 {
-    const CUSTOMER_LOGIN_ROUTE = 'customer_login';
+    const CUSTOMER_LOGIN_ROUTE = 'app_customer_login';
 
     public function __construct(
         private RecaptchaService $recaptcha,
@@ -37,11 +35,11 @@ class CustomerAuthenticator extends AbstractAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        $recaptcha = $request->request->get('_recaptcha');
+        // $recaptcha = $request->request->get('_recaptcha');
 
-        if (!$this->recaptcha->verify($recaptcha)) {
-            throw new CustomUserMessageAuthenticationException('Recaptcha failed');
-        }
+        // if (!$this->recaptcha->verify($recaptcha)) {
+        //     throw new CustomUserMessageAuthenticationException('Recaptcha failed');
+        // }
 
         return new Passport(
             new UserBadge($request->request->get('_username')),

@@ -10,11 +10,13 @@ use App\Entity\Redeemer;
 use App\Entity\Seller;
 use App\Enum\RoleEnum;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class RegisterService
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private UserPasswordHasherInterface $passwordHasher,
     ) {}
 
     public function register(RoleEnum $role, string $username, string $password)
@@ -31,39 +33,51 @@ class RegisterService
         return $user;
     }
 
-    private function makeAdmin(string $username, string $password): Admin
+    private function makeAdmin(string $email, string $password): Admin
     {
-        return (new Admin())
-            ->setEmail($username)
-            ->setPassword($password)
+        $admin = (new Admin())
+            ->setEmail($email)
             ->setRoles([RoleEnum::ADMIN->value])
         ;
+
+        $admin->setPassword($this->passwordHasher->hashPassword($admin, $password));
+
+        return $admin;
     }
 
     private function makeSeller(string $username, string $password): Seller
     {
-        return (new Seller())
+        $seller = (new Seller())
             ->setUsername($username)
-            ->setPassword($password)
             ->setRoles([RoleEnum::SELLER->value])
         ;
+
+        $seller->setPassword($this->passwordHasher->hashPassword($seller, $password));
+
+        return $seller;
     }
 
     private function makeRedeemer(string $username, string $password): Redeemer
     {
-        return (new Redeemer())
+        $redeemer = (new Redeemer())
             ->setUsername($username)
-            ->setPassword($password)
             ->setRoles([RoleEnum::REDEEMER->value])
         ;
+
+        $redeemer->setPassword($this->passwordHasher->hashPassword($redeemer, $password));
+
+        return $redeemer;
     }
 
-    private function makeCustomer(string $username, string $password): Customer
+    private function makeCustomer(string $email, string $password): Customer
     {
-        return (new Customer())
-            ->setEmail($username)
-            ->setPassword($password)
+        $customer = (new Customer())
+            ->setEmail($email)
             ->setRoles([RoleEnum::CUSTOMER->value])
         ;
+
+        $customer->setPassword($this->passwordHasher->hashPassword($customer, $password));
+
+        return $customer;
     }
 }

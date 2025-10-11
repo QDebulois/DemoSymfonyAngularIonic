@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 
 class AdminAuthenticator extends AbstractAuthenticator
 {
-    const USER_LOGIN_ROUTE = 'admin_login';
+    const USER_LOGIN_ROUTE = 'app_admin_login';
 
     public function __construct(
         private RecaptchaService $recaptcha,
@@ -35,11 +35,11 @@ class AdminAuthenticator extends AbstractAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        $recaptcha = $request->request->get('_recaptcha');
+        // $recaptcha = $request->request->get('_recaptcha');
 
-        if (!$this->recaptcha->verify($recaptcha)) {
-            throw new CustomUserMessageAuthenticationException('Recaptcha failed');
-        }
+        // if (!$this->recaptcha->verify($recaptcha)) {
+        //     throw new CustomUserMessageAuthenticationException('Recaptcha failed');
+        // }
 
         return new Passport(
             new UserBadge($request->request->get('_username')),
@@ -52,7 +52,9 @@ class AdminAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        return new RedirectResponse($this->urlGenerator->generate('admin_home'));
+        dump('PAF');
+
+        return new RedirectResponse($this->urlGenerator->generate('app_admin_home'));
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response

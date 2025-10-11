@@ -8,11 +8,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class HomeController extends AbstractController
+#[Route('/api/')]
+final class ApiQrCodeController extends AbstractController
 {
-    #[Route('/', name: 'app_home')]
-    public function index(): Response
+    #[Route('qr-code/generate', name: 'api_qrcode_generate')]
+    public function generate(): Response
     {
-        return $this->render('front/home/index.html.twig');
+        return $this->json(['Hello' => 'World']);
     }
 }
+
