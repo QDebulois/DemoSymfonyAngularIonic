@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
 
-  API_ENDPOINT: 'https://www.production-server.com/api',
+  API_ENDPOINT: 'http://192.168.1.69:8000/api',
 };
