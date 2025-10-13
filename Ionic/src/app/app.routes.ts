@@ -7,23 +7,27 @@ export const routes: Routes = [
     component: TabsComponent,
     children: [
       {
-        path: 'tab1',
-        loadComponent: () => import('./feature/tab1/tab1.component').then(m => m.Tab1Component),
+        path: 'home',
+        loadComponent: () => import('./feature/home/home.component').then(m => m.HomeComponent),
       },
       {
-        path: 'tab2',
-        loadComponent: () => import('./feature/tab2/tab2.component').then(m => m.Tab2Component),
+        path: 'gift-card',
+        loadComponent: () => import('./feature/gift-card/gift-card.component').then(m => m.GiftCardComponent),
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./feature/profile/profile.component').then(m => m.ProfileComponent),
       },
       {
         path: '',
-        redirectTo: '/app/tab1',
+        redirectTo: '/app/home',
         pathMatch: 'full',
       },
     ],
   },
   {
     path: '',
-    redirectTo: '/app/tab1',
+    redirectTo: '/app/home',
     pathMatch: 'full',
   },
 ];
