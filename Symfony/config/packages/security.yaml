@@ -68,15 +68,15 @@ security:
             form_login:
                 enable_csrf: true
                 csrf_token_id: 'authenticate'
-                login_path: app_admin_login
-                check_path: app_admin_login
+                login_path: public_admin_login
+                check_path: public_admin_login
             custom_authenticators: [App\Security\AdminAuthenticator]
             login_throttling:
                 max_attempts: 6
                 interval: '1 minute'
             logout:
                 path: app_logout
-                target: app_home
+                target: public_home
         customer:
             context: main
             pattern: ^/
@@ -87,15 +87,15 @@ security:
             form_login:
                 enable_csrf: true
                 csrf_token_id: 'authenticate'
-                login_path: app_customer_login
-                check_path: app_customer_login
+                login_path: public_customer_login
+                check_path: public_customer_login
             custom_authenticators: [App\Security\CustomerAuthenticator]
             login_throttling:
                 max_attempts: 6
                 interval: '1 minute'
             logout:
                 path: app_logout
-                target: app_home
+                target: public_home
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -106,11 +106,15 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control: [
-        { path: ^/admin/login, roles: PUBLIC_ACCESS },
-        { path: ^/admin, roles: ROLE_ADMIN },
+        { path: ^/app, roles: IS_AUTHENTICATED_FULLY },
+
         { path: ^/api/auth/refresh, roles: PUBLIC_ACCESS },
         { path: ^/api/auth/login, roles: PUBLIC_ACCESS },
-        { path: ^/api, roles: IS_AUTHENTICATED_REMEMBERED },
+        { path: ^/api, roles: IS_AUTHENTICATED_FULLY },
+
+        { path: ^/admin/login, roles: PUBLIC_ACCESS },
+        { path: ^/admin, roles: ROLE_ADMIN },
+
     ]
 
 when@test:

@@ -1,14 +1,14 @@
-{% extends 'front/base.html.twig' %}
+{% extends 'shared/base.html.twig' %}
 
-{% block title %}Hello Security Controller!{% endblock %}
+{% block title %}Admin Connexion{% endblock %}
 
 {% block body %}
-
   <main class="container">
     <div class="card">
       <div class="card-header">
-        <h2>Connexion Admin</h2>
+        <h2>Admin Connexion</h2>
       </div>
+
       <div class="card-body">
         <form method="post">
           <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
@@ -36,10 +36,8 @@
 
           <button type="submit" class="btn btn-primary">Connexion</button>
         </form>
-
       </div>
     </div>
   </main>
-
 {% endblock body %}
 

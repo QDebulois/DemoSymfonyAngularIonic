@@ -1,30 +1,28 @@
-{% extends 'front/base.html.twig' %}
+{% extends 'shared/base.html.twig' %}
 
-{% block title %}Hello HomeController!{% endblock %}
+{% block title %}Public Home{% endblock %}
 
 {% block body %}
   <main class="container">
-
-    {% if msg is defined and msg %}
-      <div class="alert alert-success">{{ msg }}</div>
-    {% endif %}
-
     <div class="card">
       <div class="card-header">
-        <h2>Demo Angular Elements</h2>
+        <h2>Public Home</h2>
       </div>
 
       <div class="card-body">
-        <p>
-          <strong id="angularOutput">Cliquer sur Emit pour récupérer le contenu d'Angular</strong>
-        </p>
+        {% if msg is defined and msg %}
+          <div class="alert alert-success">{{ msg }}</div>
+        {% endif %}
+
+        <h3>Symfony</h3>
+
+        <span>Output: <strong id="angularOutput">Cliquez sur Emit pour récupérer du contenu d'Angular</strong></span>
 
         <hr>
 
         <app-test id="angularTest" input="Hello Angular from Symfony"></app-test>
       </div>
     </div>
-
   </main>
 {% endblock %}
 

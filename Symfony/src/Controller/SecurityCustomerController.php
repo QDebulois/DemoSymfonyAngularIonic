@@ -11,13 +11,13 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 final class SecurityCustomerController extends AbstractController
 {
-    #[Route(path: '/login', name: 'app_customer_login')]
+    #[Route(path: '/login', name: 'public_customer_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         $error        = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
 
-        return $this->render('front/security/index.html.twig', [
+        return $this->render('public/security/index.html.twig', [
             'error'         => $error,
             'last_username' => $lastUsername,
         ]);

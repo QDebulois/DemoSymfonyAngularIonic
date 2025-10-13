@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\SellerRepository;
 use App\Validator\Constraints as CustomAssert;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -32,6 +34,17 @@ class Seller implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    /**
+     * @var Collection<int, GiftCard>
+     */
+    #[ORM\OneToMany(targetEntity: GiftCard::class, mappedBy: 'onSaleBy')]
+    private Collection $giftCards;
+
+    public function __construct()
+    {
+        $this->giftCards = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -101,5 +114,35 @@ class Seller implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // @deprecated, to be removed when upgrading to Symfony 8
+    }
+
+    /**
+     * @return Collection<int, GiftCard>
+     */
+    public function getGiftCards(): Collection
+    {
+        return $this->giftCards;
+    }
+
+    public function addGiftCard(GiftCard $giftCard): static
+    {
+        if (!$this->giftCards->contains($giftCard)) {
+            $this->giftCards->add($giftCard);
+            $giftCard->setOnSaleBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGiftCard(GiftCard $giftCard): static
+    {
+        if ($this->giftCards->removeElement($giftCard)) {
+            // set the owning side to null (unless already changed)
+            if ($giftCard->getOnSaleBy() === $this) {
+                $giftCard->setOnSaleBy(null);
+            }
+        }
+
+        return $this;
     }
 }

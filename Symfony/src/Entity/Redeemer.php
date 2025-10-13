@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\RedeemerRepository;
 use App\Validator\Constraints as Validator;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -32,6 +34,17 @@ class Redeemer implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    /**
+     * @var Collection<int, GiftCardUsage>
+     */
+    #[ORM\OneToMany(targetEntity: GiftCardUsage::class, mappedBy: 'usedTo', orphanRemoval: true)]
+    private Collection $giftCardUsages;
+
+    public function __construct()
+    {
+        $this->giftCardUsages = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -101,5 +114,35 @@ class Redeemer implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // @deprecated, to be removed when upgrading to Symfony 8
+    }
+
+    /**
+     * @return Collection<int, GiftCardUsage>
+     */
+    public function getGiftCardUsages(): Collection
+    {
+        return $this->giftCardUsages;
+    }
+
+    public function addGiftCardUsage(GiftCardUsage $giftCardUsage): static
+    {
+        if (!$this->giftCardUsages->contains($giftCardUsage)) {
+            $this->giftCardUsages->add($giftCardUsage);
+            $giftCardUsage->setUsedTo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGiftCardUsage(GiftCardUsage $giftCardUsage): static
+    {
+        if ($this->giftCardUsages->removeElement($giftCardUsage)) {
+            // set the owning side to null (unless already changed)
+            if ($giftCardUsage->getUsedTo() === $this) {
+                $giftCardUsage->setUsedTo(null);
+            }
+        }
+
+        return $this;
     }
 }

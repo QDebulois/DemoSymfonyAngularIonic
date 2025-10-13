@@ -1,0 +1,25 @@
+<nav class='nav justify-content-center mb-5 bg-light-subtle'>
+
+  <a class="nav-link" href="{{ path('public_home') }}">Accueil</a>
+  <a class="nav-link" href="{{ path('public_register') }}">Inscription</a>
+
+  {% if app.user is null %}
+    <a class="nav-link" href="{{ path('public_customer_login') }}">Connexion (Client)</a>
+    <a class="nav-link" href="{{ path('public_admin_login') }}">Connexion (Admin)</a>
+  {% endif %}
+
+  {% if is_granted('IS_AUTHENTICATED_FULLY') %} {# CUSTOMER #}
+    {#
+    <a class="nav-link" href="{{ path('app_qrcode_generate') }}">QR Code</a>
+    #}
+  {% endif %}
+
+  {% if is_granted('ROLE_ADMIN') %} {# ADMIN #}
+    <a class="nav-link" href="{{ path('admin_home') }}">Administration</a>
+  {% endif %}
+
+  {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+    <a class="nav-link" href="{{ path('app_logout') }}">Déconnexion</a>
+  {% endif %}
+
+</nav>

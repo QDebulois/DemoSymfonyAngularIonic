@@ -12,7 +12,7 @@ type User = {
   selector: 'app-test',
   imports: [],
   template: `
-    <h4>{{ title }}</h4>
+    <h3>{{ title }}</h3>
 
     <div class="mb-3">
       <p>

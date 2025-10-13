@@ -1,0 +1,31 @@
+{% extends 'shared/base.html.twig' %}
+
+{% block title %}App QR Code{% endblock %}
+
+{% block body %}
+  <main class="container">
+    <div class="card">
+      <div class="card-header">
+        <h2>App QR Code</h2>
+      </div>
+
+      <div class="card-body">
+        {% set seller = giftCard.onSaleBy %}
+        {% set customer = giftCard.boughtBy %}
+
+        <ul>
+          <li>Code: <strong>{{ giftCard.code }}</strong></li>
+          <li>Vendu par: <strong>{{ seller ? seller.username : 'N/A' }}</strong></li>
+          <li>Vendu a: <strong>{{ customer ? customer.email : 'N/A' }}</strong></li>
+        </ul>
+
+        <div class="p-5 d-flex justify-content-center">
+          <img width="200" src="data:image/png;base64,{{ qrCode }}">
+        </div>
+      </div>
+    </div>
+  </main>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

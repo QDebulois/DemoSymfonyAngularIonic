@@ -13,17 +13,15 @@ use App\Service\RegisterService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Bundle\SecurityBundle\SecurityBundle;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-final class RegisterController extends AbstractController
+final class PublicRegisterController extends AbstractController
 {
-    #[Route('/register', name: 'app_register')]
+    #[Route('/register', name: 'public_register')]
     public function register(
         Request $request,
         Security $security,
@@ -49,7 +47,7 @@ final class RegisterController extends AbstractController
                     $form->addError(new FormError($error->getMessage()));
                 }
 
-                return $this->render('front/register/index.html.twig', ['form' => $form->createView()]);
+                return $this->render('public/register/index.html.twig', ['form' => $form->createView()]);
             }
 
             $entityManager->flush();
@@ -62,9 +60,9 @@ final class RegisterController extends AbstractController
                 $security->login($user, CustomerAuthenticator::class, 'customer');
             }
 
-            return $this->redirectToRoute('app_home', ['msg' => "Votre compte à bien été créé."]);
+            return $this->redirectToRoute('public_home', ['msg' => 'Votre compte à bien été créé.']);
         }
 
-        return $this->render('front/register/index.html.twig', ['form' => $form->createView()]);
+        return $this->render('public/register/index.html.twig', ['form' => $form->createView()]);
     }
 }

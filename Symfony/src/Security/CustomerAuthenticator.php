@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 
 class CustomerAuthenticator extends AbstractAuthenticator
 {
-    const CUSTOMER_LOGIN_ROUTE = 'app_customer_login';
+    const CUSTOMER_LOGIN_ROUTE = 'public_customer_login';
 
     public function __construct(
         private RecaptchaService $recaptcha,
@@ -52,7 +52,7 @@ class CustomerAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        return new RedirectResponse($this->urlGenerator->generate('app_home'));
+        return new RedirectResponse($this->urlGenerator->generate('public_home'));
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response

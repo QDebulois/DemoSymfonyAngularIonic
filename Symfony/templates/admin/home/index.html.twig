@@ -1,0 +1,65 @@
+{% extends 'shared/base.html.twig' %}
+
+{% block title %}Admin Home{% endblock %}
+
+{% block body %}
+  <main class="container">
+    <div class="card">
+      <div class="card-header">
+        <h2>Admin Home</h2>
+      </div>
+
+      <div class="card-body">
+        {% if msg is defined and msg %}
+          <div class="alert alert-success">{{ msg }}</div>
+        {% endif %}
+
+        <h3>Admins</h3>
+
+        <ul>
+          {% for admin in admins %}
+            <li>{{ admin.email }}</li>
+          {% endfor %}
+        </ul>
+
+        <h3>Vendeurs</h3>
+
+        <ul>
+          {% for seller in sellers %}
+            <li>{{ seller.username }}</li>
+          {% endfor %}
+        </ul>
+
+        <h3>Boutiques</h3>
+
+        <ul>
+          {% for redeemer in redeemers %}
+            <li>{{ redeemer.username }}</li>
+          {% endfor %}
+        </ul>
+
+        <h3>Clients</h3>
+
+        <ul>
+          {% for customer in customers %}
+            <li>{{ customer.email }}</li>
+          {% endfor %}
+        </ul>
+
+        <h3>Chèques Cadeaux</h3>
+
+        {{ form(giftCardForm) }}
+
+        <ul>
+          {% for giftCard in giftCards %}
+            <li>{{ giftCard.code }} <a href="{{ path('app_qrcode_generate', { giftcard_id: giftCard.id }) }}" class="btn btn-primary">QR Code</a></li>
+          {% endfor %}
+        </ul>
+
+      </div>
+    </div>
+  </main>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
