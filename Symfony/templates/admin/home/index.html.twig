@@ -52,7 +52,7 @@
 
         <ul>
           {% for giftCard in giftCards %}
-            <li>{{ giftCard.code }} <a href="{{ path('app_qrcode_generate', { giftcard_id: giftCard.id }) }}" class="btn btn-primary">QR Code</a></li>
+            <li>{{ giftCard.code }} <a href="{{ path('app_giftcard_qrcode', { giftcard_id: giftCard.id }) }}" class="btn btn-primary">QR Code</a></li>
           {% endfor %}
         </ul>
 

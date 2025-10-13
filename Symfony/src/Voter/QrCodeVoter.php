@@ -23,9 +23,12 @@ class QrCodeVoter extends Voter
     {
         $user = $token->getUser();
 
+        /** @var GiftCard $giftCard */
+        $giftCard = $subject;
+
         return
             $user instanceof Admin
-            || ($user === $subject->getOnSaleBy() && null === $subject->getBoughtBy())
-            || $user === $subject->getBoughtBy();
+            || ($user === $giftCard->getOnSaleBy() && null === $giftCard->getBoughtBy())
+            || $user === $giftCard->getBoughtBy();
     }
 }

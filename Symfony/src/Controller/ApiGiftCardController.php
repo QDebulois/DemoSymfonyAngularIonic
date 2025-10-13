@@ -10,9 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/')]
-final class ApiQrCodeController extends AbstractController
+final class ApiGiftCardController extends AbstractController
 {
-    #[Route('qr-code/generate', name: 'api_qrcode_generate')]
+    #[Route('gift-card', name: 'api_giftcard')]
     public function generate(): Response
     {
         $role = match(true) {

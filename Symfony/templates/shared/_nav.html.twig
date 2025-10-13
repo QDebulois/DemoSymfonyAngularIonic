@@ -8,13 +8,11 @@
     <a class="nav-link" href="{{ path('public_admin_login') }}">Connexion (Admin)</a>
   {% endif %}
 
-  {% if is_granted('IS_AUTHENTICATED_FULLY') %} {# CUSTOMER #}
-    {#
-    <a class="nav-link" href="{{ path('app_qrcode_generate') }}">QR Code</a>
-    #}
+  {% if is_granted('ROLE_CUSTOMER') %}
+    <a class="nav-link" href="{{ path('app_giftcard_index') }}">QR Code</a>
   {% endif %}
 
-  {% if is_granted('ROLE_ADMIN') %} {# ADMIN #}
+  {% if is_granted('ROLE_ADMIN') %}
     <a class="nav-link" href="{{ path('admin_home') }}">Administration</a>
   {% endif %}
 

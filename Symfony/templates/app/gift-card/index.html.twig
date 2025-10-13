@@ -1,0 +1,25 @@
+{% extends 'shared/base.html.twig' %}
+
+{% block title %}App Gift Cards{% endblock %}
+
+{% block body %}
+  <main class="container">
+    <div class="card">
+      <div class="card-header">
+        <h2>App Gift Cards</h2>
+      </div>
+
+      <div class="card-body">
+        <ul>
+          {% for giftCard in giftCards %}
+            <li>{{ giftCard.code }} <a href="{{ path('app_qrcode_generate', { giftcard_id: giftCard.id }) }}" class="btn btn-primary">QR Code</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </main>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
+
