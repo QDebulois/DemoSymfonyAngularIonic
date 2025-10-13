@@ -10,6 +10,7 @@ use App\Enum\RoleEnum;
 use App\Enum\VoterEnum;
 use App\Repository\GiftCardRepository;
 use App\Service\QrCodeService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,5 +45,18 @@ final class AppGiftCardController extends AbstractController
             'giftCard' => $giftCard,
             'qrCode'   => $qrCodeService->generatePngBase64($giftCard->getCode()),
         ]);
+    }
+
+    #[IsGranted(RoleEnum::ADMIN->value)]
+    #[Route('gift-card/{giftcard_id}', name: 'app_giftcard_qrcode_delete', methods: ['DELETE'])]
+    public function delete(
+        #[MapEntity(id: 'giftcard_id')]
+        GiftCard $giftCard,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        $entityManager->remove($giftCard);
+        $entityManager->flush();
+
+        return new Response(status: Response::HTTP_NO_CONTENT);
     }
 }

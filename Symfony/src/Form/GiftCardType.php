@@ -2,13 +2,10 @@
 
 namespace App\Form;
 
-use App\Entity\Customer;
-use App\Entity\GiftCard;
 use App\Entity\Seller;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -18,29 +15,26 @@ class GiftCardType extends AbstractType
     {
         $builder
             ->add('quantity', IntegerType::class, [
-                'mapped'   => false,
-                'required' => true,
+                'mapped'     => false,
+                'required'   => true,
+                'label'      => 'Quantité',
+                'row_attr'   => ['class' => 'mb-3'],
+                'label_attr' => ['class' => 'form-label'],
+                'attr'       => ['class' => 'form-control'],
             ])
-            // ->add('code')
-            // ->add('initialAmount')
-            // ->add('remainingAmount')
             ->add('onSaleBy', EntityType::class, [
                 'required'     => true,
                 'class'        => Seller::class,
                 'choice_label' => 'username',
+                'label'        => 'Point de vente',
+                'label_attr'   => ['class' => 'form-label'],
+                'attr'         => ['class' => 'form-control'],
             ])
-            // ->add('boughtBy', EntityType::class, [
-            //     'class' => Customer::class,
-            //     'choice_label' => 'email',
-            // ])
-            ->add('submit', SubmitType::class)
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults([
-            // 'data_class' => GiftCard::class,
-        ]);
+        $resolver->setDefaults([]);
     }
 }

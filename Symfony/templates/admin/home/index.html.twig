@@ -46,15 +46,84 @@
           {% endfor %}
         </ul>
 
-        <h3>Chèques Cadeaux</h3>
+        <div class="d-flex mb-4">
+          <h3 class="me-2">Chèques Cadeaux</h3>
 
-        {{ form(giftCardForm) }}
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#giftCardModal">
+            Générer des chèques cadeaux
+          </button>
+        </div>
 
-        <ul>
-          {% for giftCard in giftCards %}
-            <li>{{ giftCard.code }} <a href="{{ path('app_giftcard_qrcode', { giftcard_id: giftCard.id }) }}" class="btn btn-primary">QR Code</a></li>
-          {% endfor %}
-        </ul>
+        <div class="modal fade" id="giftCardModal" tabindex="-1" aria-labelledby="giftCardModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="giftCardModalLabel">Générer des chèques cadeaux</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                {{ form(giftCardForm, { attr: { id: 'form_gift-card' } }) }}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-primary" id="btn_gift-card">Générer</button>
+              </div>
+              <script>
+                document.getElementById('btn_gift-card').addEventListener('click', () => {
+                  const form = document.getElementById('form_gift-card');
+
+                  form.reportValidity() && form.submit();
+                });
+              </script>
+            </div>
+          </div>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Code</th>
+              <th scope="col">Status</th>
+              <th scope="col">Vendu par</th>
+              <th scope="col">Vendu à</th>
+              <th scope="col">Associé à</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for giftCard in giftCards %}
+              {% set seller = giftCard.onSaleBy %}
+              {% set boughtBy = giftCard.boughtBy %}
+              {% set associatedTo = giftCard.associatedTo %}
+
+              <tr>
+                <th scope="row">
+                  <span>{{ giftCard.code }}</span>
+                </th>
+                <td>
+                  <span>{{ (giftCard|giftCardStatus).label() }}</span>
+                </td>
+                <td>
+                  <span>{{ seller ? seller.username : 'N/A' }}</span>
+                </td>
+                <td>
+                  <span>{{ boughtBy ? boughtBy.email : 'N/A' }}</span>
+                </td>
+                <td>
+                  <span>{{ associatedTo ? associatedTo.email : 'N/A' }}</span>
+                </td>
+                <td>
+                  <a href="{{ path('app_giftcard_qrcode', { giftcard_id: giftCard.id }) }}" class="btn btn-primary me-2">
+                    <span class="material-symbols-outlined">qr_code</span>
+                  </a>
+                  <a data-delete data-path="{{ path('app_giftcard_qrcode_delete', { giftcard_id: giftCard.id }) }}" class="btn btn-danger me-2">
+                    <span class="material-symbols-outlined">delete</span>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
 
       </div>
     </div>
@@ -62,4 +131,10 @@
 {% endblock %}
 
 {% block scripts %}
+  <script>
+    document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', () =>
+      confirm('Etes-vous sur de vouloir supprimer ce code de cadeau ?')
+      && fetch(btn.getAttribute('data-path'), { method: 'DELETE' }).then(res => res.ok ? location.reload() : alert('Une erreur est survenue'))
+    ));
+  </script>
 {% endblock %}

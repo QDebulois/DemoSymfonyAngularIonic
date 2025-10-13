@@ -36,6 +36,9 @@ class GiftCard
     #[ORM\OneToMany(targetEntity: GiftCardUsage::class, mappedBy: 'giftCard', orphanRemoval: true)]
     private Collection $giftCardUsages;
 
+    #[ORM\ManyToOne(inversedBy: 'giftCardsAssociated')]
+    private ?Customer $associatedTo = null;
+
     public function __construct()
     {
         $this->giftCardUsages = new ArrayCollection();
@@ -132,6 +135,18 @@ class GiftCard
                 $giftCardUsage->setGiftCard(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAssociatedTo(): ?Customer
+    {
+        return $this->associatedTo;
+    }
+
+    public function setAssociatedTo(?Customer $associatedTo): static
+    {
+        $this->associatedTo = $associatedTo;
 
         return $this;
     }

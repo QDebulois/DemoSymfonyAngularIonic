@@ -39,11 +39,18 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
      * @var Collection<int, GiftCard>
      */
     #[ORM\OneToMany(targetEntity: GiftCard::class, mappedBy: 'boughtBy')]
-    private Collection $giftCards;
+    private Collection $giftCardsBought;
+
+    /**
+     * @var Collection<int, GiftCard>
+     */
+    #[ORM\OneToMany(targetEntity: GiftCard::class, mappedBy: 'associatedTo')]
+    private Collection $giftCardsAssociated;
 
     public function __construct()
     {
-        $this->giftCards = new ArrayCollection();
+        $this->giftCardsBought = new ArrayCollection();
+        $this->giftCardsAssociated = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -119,27 +126,57 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, GiftCard>
      */
-    public function getGiftCards(): Collection
+    public function getGiftCardsBought(): Collection
     {
-        return $this->giftCards;
+        return $this->giftCardsBought;
     }
 
-    public function addGiftCard(GiftCard $giftCard): static
+    public function addGiftCardsBought(GiftCard $giftCardsBought): static
     {
-        if (!$this->giftCards->contains($giftCard)) {
-            $this->giftCards->add($giftCard);
-            $giftCard->setBoughtBy($this);
+        if (!$this->giftCardsBought->contains($giftCardsBought)) {
+            $this->giftCardsBought->add($giftCardsBought);
+            $giftCardsBought->setBoughtBy($this);
         }
 
         return $this;
     }
 
-    public function removeGiftCard(GiftCard $giftCard): static
+    public function removeGiftCardsBought(GiftCard $giftCardsBought): static
     {
-        if ($this->giftCards->removeElement($giftCard)) {
+        if ($this->giftCardsBought->removeElement($giftCardsBought)) {
             // set the owning side to null (unless already changed)
-            if ($giftCard->getBoughtBy() === $this) {
-                $giftCard->setBoughtBy(null);
+            if ($giftCardsBought->getBoughtBy() === $this) {
+                $giftCardsBought->setBoughtBy(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, GiftCard>
+     */
+    public function getGiftCardsAssociated(): Collection
+    {
+        return $this->giftCardsAssociated;
+    }
+
+    public function addGiftCardsAssociated(GiftCard $giftCardsAssociated): static
+    {
+        if (!$this->giftCardsAssociated->contains($giftCardsAssociated)) {
+            $this->giftCardsAssociated->add($giftCardsAssociated);
+            $giftCardsAssociated->setAssociatedTo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGiftCardsAssociated(GiftCard $giftCardsAssociated): static
+    {
+        if ($this->giftCardsAssociated->removeElement($giftCardsAssociated)) {
+            // set the owning side to null (unless already changed)
+            if ($giftCardsAssociated->getAssociatedTo() === $this) {
+                $giftCardsAssociated->setAssociatedTo(null);
             }
         }
 
