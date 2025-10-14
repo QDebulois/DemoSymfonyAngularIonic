@@ -8,15 +8,15 @@ export const routes: Routes = [
     children: [
       {
         path: 'home',
-        loadComponent: () => import('./feature/home/home.component').then(m => m.HomeComponent),
+        loadComponent: () => import('./feature/home/component/home.component').then(m => m.HomeComponent),
       },
       {
         path: 'gift-card',
-        loadComponent: () => import('./feature/gift-card/gift-card.component').then(m => m.GiftCardComponent),
+        loadComponent: () => import('./feature/gift-card/component/gift-card.component').then(m => m.GiftCardComponent),
       },
       {
         path: 'profile',
-        loadComponent: () => import('./feature/profile/profile.component').then(m => m.ProfileComponent),
+        loadComponent: () => import('./feature/profile/component/profile.component').then(m => m.ProfileComponent),
       },
       {
         path: '',
