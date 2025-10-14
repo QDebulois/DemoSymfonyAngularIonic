@@ -1,21 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal, viewChild } from '@angular/core';
-import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonButton,
-  IonCard,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonButtons,
-  IonModal,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonIcon,
-} from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonCard, IonCardHeader, IonCardSubtitle, IonButtons, IonModal, IonList, IonItem, IonLabel, IonIcon, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { CapacitorBarcodeScanner, CapacitorBarcodeScannerTypeHint } from '@capacitor/barcode-scanner';
@@ -23,13 +8,15 @@ import { AuthService } from 'src/app/core/service/auth.service';
 import { RoleService } from 'src/app/shared/service/role.service';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { GiftCardResponseDto, GiftCardService } from '../service/gift-card.service';
-import { CustomerService } from '../service/customer.service';
+import { CustomerResponseDto, CustomerService } from '../service/customer.service';
 import { addIcons } from 'ionicons';
 import { bug, qrCode } from 'ionicons/icons';
 
 type State = {
   giftCardInfos: GiftCardResponseDto | null;
   qrCodeValue: string | null;
+  customers: CustomerResponseDto[];
+  customer: CustomerResponseDto | null;
 };
 
 @Component({
@@ -51,7 +38,9 @@ type State = {
     IonItem,
     IonLabel,
     IonIcon,
-  ],
+    IonSelect,
+    IonSelectOption
+],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
@@ -65,27 +54,17 @@ type State = {
           <ion-card-subtitle> Role: {{ authService.tokenPayload()?.roles | json }} </ion-card-subtitle>
         </ion-card-header>
       </ion-card>
-
       <ion-card>
         <ion-card-header>
           <ion-card-subtitle> Gift Card Infos: {{ state().giftCardInfos | json }} </ion-card-subtitle>
         </ion-card-header>
       </ion-card>
-
       <ion-list [inset]="true">
         <ion-item [button]="true" (click)="debug()">
           <ion-icon name="bug"></ion-icon>
           <ion-label>Debug</ion-label>
         </ion-item>
       </ion-list>
-
-      <ion-list [inset]="true">
-        <ion-item [button]="true" (click)="infos()">
-          <ion-icon name="qr-code"></ion-icon>
-          <ion-label>Infos</ion-label>
-        </ion-item>
-      </ion-list>
-
       <ion-list [inset]="true">
         <ion-item [button]="true" (click)="infos()">
           <ion-icon name="qr-code"></ion-icon>
@@ -115,16 +94,12 @@ type State = {
         <ng-template>
           <ion-header>
             <ion-toolbar>
-              <ion-buttons slot="start">
-                <ion-button (click)="cancel()">Cancel</ion-button>
-              </ion-buttons>
-              <ion-title>Welcome</ion-title>
-              <ion-buttons slot="end">
-                <ion-button (click)="confirm()" [strong]="true">Confirm</ion-button>
-              </ion-buttons>
+              <ion-buttons slot="start"><ion-button (click)="cancel()">Annuler</ion-button></ion-buttons>
+              <ion-title>Validation</ion-title>
+              <ion-buttons slot="end"><ion-button (click)="confirm()" [strong]="true">Valider</ion-button></ion-buttons>
             </ion-toolbar>
           </ion-header>
-          <ion-content class="ion-padding">
+          <ion-content class="ion-padding" color="light">
             <!--
             <ion-item>
               <ion-input
@@ -136,6 +111,17 @@ type State = {
               ></ion-input>
             </ion-item>
             -->
+
+            <ion-list [inset]="true">
+              <ion-item>
+                <ion-select label="Floating label" label-placement="floating" (ionChange)="handleChange($event)">
+                  @for (customer of state().customers; track $index) {
+                    <ion-select-option [value]="customer.email">{{ customer.email }}</ion-select-option>
+                  }
+                </ion-select>
+              </ion-item>
+            </ion-list>
+
           </ion-content>
         </ng-template>
       </ion-modal>
@@ -158,6 +144,8 @@ export class GiftCardComponent {
   state = signal<State>({
     qrCodeValue: null,
     giftCardInfos: null,
+    customers: [],
+    customer: null,
   });
 
   constructor() {
@@ -169,29 +157,36 @@ export class GiftCardComponent {
   }
 
   cancel() {
-    this.modal().dismiss(null, 'cancel');
+    this.modal().dismiss();
   }
 
   confirm() {
-    this.modal().dismiss('DATA', 'confirm');
+    this.modal().dismiss(null, 'confirm');
   }
 
   onWillPresent() {
-    this.customerService.all().subscribe(res => console.log(res));
+    this.customerService.all().subscribe(res => this.state.update(s => ({ ...s, customers: res })));
   }
 
   onWillDismiss(event: CustomEvent<OverlayEventDetail>) {
-    if (event.detail.role === 'confirm') {
-      const data = event.detail.data;
-    } else {
+    const role = event.detail.role;
+    const qrCodeValue = this.state().qrCodeValue;
+    const customer = this.state().customer;
+
+    if (role === 'confirm' && qrCodeValue && customer) {
+      this.giftCardService.sell(qrCodeValue, customer).subscribe();
     }
+
+    this.state.update(s => ({ ...s, qrCodeValue: null, customers: [], customer: null }));
+  }
+
+  handleChange(event: Event) {
+    const target = event.target as HTMLIonSelectElement;
+
+    this.state.update(s => ({ ...s, customer: this.state().customers.find(c => c.email === target.value) ?? null }));
   }
 
   debug() {
-    // this.customerService.all().subscribe();
-
-    console.log(this.modal());
-
     this.modal().present();
   }
 
