@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { FormBuilder, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import {
   IonHeader,
   IonToolbar,
@@ -11,8 +13,12 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonCardContent,
+  IonList,
+  IonItem,
+  IonInput,
+  IonText,
 } from '@ionic/angular/standalone';
-import { AuthService } from 'src/app/core/service/auth.service';
+import { AuthService, Credentials } from 'src/app/core/service/auth.service';
 
 @Component({
   selector: 'app-profile',
@@ -28,6 +34,13 @@ import { AuthService } from 'src/app/core/service/auth.service';
     IonCardTitle,
     IonCardSubtitle,
     IonCardContent,
+    ReactiveFormsModule,
+
+    IonList,
+    IonItem,
+    IonText,
+    IonInput,
+    MatIconModule,
   ],
   template: `
     <ion-header [translucent]="true">
@@ -44,35 +57,59 @@ import { AuthService } from 'src/app/core/service/auth.service';
         </ion-card-header>
 
         <ion-card-content>
-          <main>
-            <span>Vous êtes connecté en tant que: {{ authService.tokenPayload()?.roles | json }}</span>
+          <main class="ion-display-flex ion-flex-column">
 
-            <span>Credentials: {{ credentials | json }}</span>
+            <ion-text>Role: {{ authService.tokenPayload()?.roles | json }}</ion-text>
 
-            <div><ion-button (click)="login()" color="primary">Login</ion-button></div>
-            <div><ion-button (click)="logout()" color="primary">Logout</ion-button></div>
+            @if(authService.tokenPayload()) {
+              <div>
+                <ion-button (click)="logout()" color="primary"><mat-icon fontIcon="logout"></mat-icon> Logout</ion-button>
+              </div>
+            } @else {
+              <form [formGroup]="formLogin" (submit)="login()">
+                <ion-list>
+                  <ion-item>
+                    <ion-input labelPlacement="floating" formControlName="username">
+                      <div slot="label">Email / Username</div>
+                    </ion-input>
+                  </ion-item>
+
+                  <ion-item>
+                    <ion-input labelPlacement="floating" type="password" formControlName="password">
+                      <div slot="label">Mot de passe</div>
+                    </ion-input>
+                  </ion-item>
+                </ion-list>
+
+                <div class="ion-margin-top">
+                  <ion-button type="submit" color="primary"><mat-icon fontIcon="login"></mat-icon> Login</ion-button>
+                </div>
+              </form>
+            }
+
           </main>
         </ion-card-content>
       </ion-card>
     </ion-content>
   `,
-  styles: `
-    main {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-  `,
+  styles: ``,
 })
 export class ProfileComponent {
+  formBuilder = inject(NonNullableFormBuilder);
+
   authService = inject(AuthService);
 
-  credentials = { username: 'pv_quentin', password: 'Soleil513' };
+  formLogin = this.formBuilder.group({
+    username: ['', [Validators.required]],
+    password: ['', [Validators.required]],
+  });
 
   constructor() {}
 
   login() {
-    this.authService.login(this.credentials).subscribe(res => console.log(res));
+    const credentials = this.formLogin.getRawValue() as Credentials;
+
+    this.authService.login(credentials).subscribe(res => console.log(res));
   }
 
   logout() {

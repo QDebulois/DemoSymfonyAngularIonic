@@ -9,7 +9,7 @@ class GiftCardResponseDto
     public string $code;
     public int $initialAmount;
     public int $remainingAmount;
-    public string $onSaleBy;
-    public string $boughtBy;
-    public string $associatedTo;
+    public ?string $onSaleBy;
+    public ?string $boughtBy;
+    public ?string $associatedTo;
 }

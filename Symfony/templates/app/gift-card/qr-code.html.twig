@@ -12,11 +12,14 @@
       <div class="card-body">
         {% set seller = giftCard.onSaleBy %}
         {% set customer = giftCard.boughtBy %}
+        {% set associatedTo = giftCard.associatedTo %}
 
         <ul>
           <li>Code: <strong>{{ giftCard.code }}</strong></li>
+          <li>Status: <strong>{{ (giftCard|giftCardStatus).label() }}</strong></li>
           <li>Vendu par: <strong>{{ seller ? seller.username : 'N/A' }}</strong></li>
-          <li>Vendu a: <strong>{{ customer ? customer.email : 'N/A' }}</strong></li>
+          <li>Vendu à: <strong>{{ customer ? customer.email : 'N/A' }}</strong></li>
+          <li>Associé à: <strong>{{ associatedTo ? associatedTo.email : 'N/A' }}</strong></li>
         </ul>
 
         <div class="p-5 d-flex justify-content-center">

@@ -26,7 +26,7 @@ final class ApiGiftCardController extends AbstractController
     '))]
     #[Route('gift-card/{gift_card_code}', name: 'api_giftcard_infos')]
     public function infos(
-        #[MapEntity(mapping: ['code' => 'gift_card_code'])]
+        #[MapEntity(mapping: ['gift_card_code' => 'code'])]
         GiftCard $giftCard,
         GiftCardResponseDtoFactory $giftCardResponseDtoFactory,
     ): Response {
