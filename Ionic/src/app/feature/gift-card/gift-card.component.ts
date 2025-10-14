@@ -125,10 +125,18 @@ export class GiftCardComponent {
   }
 
   private async scan() {
-    const barcode = await CapacitorBarcodeScanner.scanBarcode({ hint: CapacitorBarcodeScannerTypeHint.QR_CODE });
+    try {
+      const barcode = await CapacitorBarcodeScanner.scanBarcode({ hint: CapacitorBarcodeScannerTypeHint.QR_CODE });
 
-    console.log(barcode);
+      console.log('OK');
 
-    this.state.update(s => ({ ...s, qrCodeValue: barcode.ScanResult }));
+      console.log(barcode);
+
+      this.state.update(s => ({ ...s, qrCodeValue: barcode.ScanResult }));
+    } catch (e) {
+      console.log('CATCHED');
+
+      console.error(e);
+    }
   }
 }
