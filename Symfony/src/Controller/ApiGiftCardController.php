@@ -18,8 +18,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -50,15 +48,19 @@ final class ApiGiftCardController extends AbstractController
         EntityManagerInterface $entityManager,
         CustomerRepository $customerRepository,
     ): Response {
+        if ($giftCard->getBoughtBy()) {
+            return new Response(status: Response::HTTP_BAD_REQUEST);
+        }
+
         if (!$customer = $customerRepository->findOneBy(['email' => $customerRequestDto->email])) {
-            throw new NotFoundHttpException();
+            return new Response(status: Response::HTTP_NOT_FOUND);
         }
 
         $giftCard->setBoughtBy($customer);
 
         $entityManager->flush();
 
-        return new Response();
+        return new Response(status: Response::HTTP_NO_CONTENT);
     }
 
     #[IsGranted(RoleEnum::CUSTOMER->value)]
@@ -71,15 +73,19 @@ final class ApiGiftCardController extends AbstractController
         EntityManagerInterface $entityManager,
         CustomerRepository $customerRepository,
     ): Response {
+        if ($giftCard->getAssociatedTo()) {
+            return new Response(status: Response::HTTP_BAD_REQUEST);
+        }
+
         if (!$customer = $customerRepository->findOneBy(['email' => $customerRequestDto->email])) {
-            throw new NotFoundHttpException();
+            return new Response(status: Response::HTTP_NOT_FOUND);
         }
 
         $giftCard->setAssociatedTo($customer);
 
         $entityManager->flush();
 
-        return new Response();
+        return new Response(status: Response::HTTP_NO_CONTENT);
     }
 
     #[IsGranted(RoleEnum::REDEEMER->value)]
@@ -92,7 +98,7 @@ final class ApiGiftCardController extends AbstractController
         EntityManagerInterface $entityManager,
     ): Response {
         if ($redeemRequestDto->amount > $giftCard->getRemainingAmount()) {
-            throw new BadRequestHttpException();
+            return new Response(status: Response::HTTP_BAD_REQUEST);
         }
 
         /** @var Redeemer $redeemer */
@@ -113,6 +119,6 @@ final class ApiGiftCardController extends AbstractController
         $entityManager->persist($giftCardUsage);
         $entityManager->flush();
 
-        return new Response();
+        return new Response(status: Response::HTTP_CREATED);
     }
 }
