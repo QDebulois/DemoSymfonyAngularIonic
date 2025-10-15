@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Dto\Factory\Response\GiftCardResponseDtoFactory;
 use App\Dto\Request\CustomerRequestDto;
 use App\Dto\Request\RedeemRequestDto;
+use App\Entity\Customer;
 use App\Entity\GiftCard;
 use App\Entity\GiftCardUsage;
 use App\Entity\Redeemer;
@@ -68,18 +69,14 @@ final class ApiGiftCardController extends AbstractController
     public function associate(
         #[MapEntity(mapping: ['gift_card_code' => 'code'])]
         GiftCard $giftCard,
-        #[MapRequestPayload()]
-        CustomerRequestDto $customerRequestDto,
         EntityManagerInterface $entityManager,
-        CustomerRepository $customerRepository,
     ): Response {
         if ($giftCard->getAssociatedTo()) {
             return new Response(status: Response::HTTP_BAD_REQUEST);
         }
 
-        if (!$customer = $customerRepository->findOneBy(['email' => $customerRequestDto->email])) {
-            return new Response(status: Response::HTTP_NOT_FOUND);
-        }
+        /** @var Customer $customer */
+        $customer = $this->getUser();
 
         $giftCard->setAssociatedTo($customer);
 

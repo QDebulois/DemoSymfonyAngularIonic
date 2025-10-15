@@ -46,7 +46,6 @@ type ModalState = {
 enum ModalType {
   Sell,
   Redeem,
-  Associate,
 }
 
 @Component({
@@ -155,7 +154,7 @@ enum ModalType {
           <ion-content class="ion-padding" color="light">
             <ion-list [inset]="true">
               <ion-item>
-                @if (modalState().modalType === ModalType.Sell || modalState().modalType === ModalType.Associate) {
+                @if (modalState().modalType === ModalType.Sell) {
                   <ion-select label="Email" label-placement="floating" (ionChange)="modalCustomersHandleChange($event)">
                     @for (customer of modalState().customers; track $index) {
                       <ion-select-option [value]="customer.email">{{ customer.email }}</ion-select-option>
@@ -216,7 +215,7 @@ export class GiftCardComponent {
   modalOnWillPresent() {
     const modalType = this.modalState().modalType;
 
-    if (modalType === ModalType.Sell || modalType === ModalType.Associate) {
+    if (modalType === ModalType.Sell) {
       this.customerService.all().subscribe(res => this.state.update(s => ({ ...s, customers: res })));
     }
   }
@@ -238,12 +237,6 @@ export class GiftCardComponent {
       if (!customer) return;
 
       this.giftCardService.sell(qrCodeValue, customer).subscribe();
-    } else if (modalType === ModalType.Associate) {
-      const customer = this.modalState().selectedCustomer;
-
-      if (!customer) return;
-
-      this.giftCardService.associate(qrCodeValue, customer).subscribe();
     } else if (modalType === ModalType.Redeem) {
       const amount = this.modalState().selectedAmount;
 
@@ -299,9 +292,7 @@ export class GiftCardComponent {
 
     if (!qrCodeValue) return;
 
-    this.modalState.update(s => ({ ...s, modalType: ModalType.Associate }));
-
-    this.modal().present();
+    this.giftCardService.associate(qrCodeValue).subscribe();
   }
 
   async redeem() {

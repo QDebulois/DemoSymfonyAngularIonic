@@ -32,8 +32,8 @@ export class GiftCardService {
     return this.httpClient.post<any>(`${this.baseUrl}/${qrcode}/sell`, payload);
   }
 
-  associate(qrcode: string, payload: CustomerRequestDto) {
-    return this.httpClient.post<any>(`${this.baseUrl}/${qrcode}/associate`, payload);
+  associate(qrcode: string) {
+    return this.httpClient.get<any>(`${this.baseUrl}/${qrcode}/associate`);
   }
 
   redeem(qrcode: string, payload: RedeemRequestDto) {

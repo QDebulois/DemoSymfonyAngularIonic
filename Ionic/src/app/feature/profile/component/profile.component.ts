@@ -59,10 +59,10 @@ import { AuthService, Credentials } from 'src/app/core/service/auth.service';
           </ion-item>
         } @else {
           <form [formGroup]="formLogin">
-            <ion-item [button]="true">
+            <ion-item>
               <ion-input label="Email/Username" labelPlacement="floating" formControlName="username"></ion-input>
             </ion-item>
-            <ion-item [button]="true">
+            <ion-item>
               <ion-input label="Mot de passe" labelPlacement="floating" type="password" formControlName="password"></ion-input>
             </ion-item>
             <ion-item [button]="true" (click)="login()">
