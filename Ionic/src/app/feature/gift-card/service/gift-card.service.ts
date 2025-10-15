@@ -12,6 +12,10 @@ export type GiftCardResponseDto = {
   associatedTo: string;
 };
 
+export type RedeemRequestDto = {
+  amount: number;
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -28,11 +32,11 @@ export class GiftCardService {
     return this.httpClient.post<any>(`${this.baseUrl}/${qrcode}/sell`, payload);
   }
 
-  redeem(qrcode: string, amount: number) {
-    return this.httpClient.post<any>(`${this.baseUrl}/${qrcode}/redeem`, { amount: amount });
+  associate(qrcode: string, payload: CustomerRequestDto) {
+    return this.httpClient.post<any>(`${this.baseUrl}/${qrcode}/associate`, payload);
   }
 
-  associate(qrcode: string) {
-    return this.httpClient.post<any>(`${this.baseUrl}/${qrcode}/associate`, {});
+  redeem(qrcode: string, payload: RedeemRequestDto) {
+    return this.httpClient.post<any>(`${this.baseUrl}/${qrcode}/redeem`, payload);
   }
 }

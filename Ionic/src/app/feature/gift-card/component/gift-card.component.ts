@@ -1,23 +1,53 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal, viewChild } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonCard, IonCardHeader, IonCardSubtitle, IonButtons, IonModal, IonList, IonItem, IonLabel, IonIcon, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonButton,
+  IonCard,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonButtons,
+  IonModal,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonIcon,
+  IonSelect,
+  IonSelectOption,
+  IonInput,
+  IonListHeader,
+} from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { CapacitorBarcodeScanner, CapacitorBarcodeScannerTypeHint } from '@capacitor/barcode-scanner';
 import { AuthService } from 'src/app/core/service/auth.service';
 import { RoleService } from 'src/app/shared/service/role.service';
 import { OverlayEventDetail } from '@ionic/core/components';
-import { GiftCardResponseDto, GiftCardService } from '../service/gift-card.service';
-import { CustomerResponseDto, CustomerService } from '../service/customer.service';
+import { GiftCardResponseDto, GiftCardService, RedeemRequestDto } from '../service/gift-card.service';
+import { CustomerRequestDto, CustomerResponseDto, CustomerService } from '../service/customer.service';
 import { addIcons } from 'ionicons';
 import { bug, qrCode } from 'ionicons/icons';
 
 type State = {
   giftCardInfos: GiftCardResponseDto | null;
   qrCodeValue: string | null;
-  customers: CustomerResponseDto[];
-  customer: CustomerResponseDto | null;
 };
+
+type ModalState = {
+  modalType: ModalType | null;
+  customers: CustomerResponseDto[];
+  selectedCustomer: CustomerRequestDto | null;
+  selectedAmount: RedeemRequestDto | null;
+};
+
+enum ModalType {
+  Sell,
+  Redeem,
+  Associate,
+}
 
 @Component({
   selector: 'app-gift-card',
@@ -39,8 +69,10 @@ type State = {
     IonLabel,
     IonIcon,
     IonSelect,
-    IonSelectOption
-],
+    IonSelectOption,
+    IonInput,
+    IonListHeader,
+  ],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
@@ -54,11 +86,36 @@ type State = {
           <ion-card-subtitle> Role: {{ authService.tokenPayload()?.roles | json }} </ion-card-subtitle>
         </ion-card-header>
       </ion-card>
-      <ion-card>
-        <ion-card-header>
-          <ion-card-subtitle> Gift Card Infos: {{ state().giftCardInfos | json }} </ion-card-subtitle>
-        </ion-card-header>
-      </ion-card>
+      <ion-list [inset]="true">
+        <ion-list-header>
+          <ion-label>Chèques cadeaux infos</ion-label>
+        </ion-list-header>
+        @let giftcard = state().giftCardInfos;
+        @if (!giftcard) {
+          <ion-item>
+            <ion-label>Scannez le code</ion-label>
+          </ion-item>
+        } @else {
+          <ion-item>
+            <ion-label>Code: {{ giftcard.code }}</ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>Initial: {{ giftcard.initialAmount }}</ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>Restant: {{ giftcard.remainingAmount }}</ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>Vendu par: {{ giftcard.onSaleBy }}</ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>Acheté par: {{ giftcard.boughtBy }}</ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>Associé à: {{ giftcard.associatedTo }}</ion-label>
+          </ion-item>
+        }
+      </ion-list>
       <ion-list [inset]="true">
         <ion-item [button]="true" (click)="debug()">
           <ion-icon name="bug"></ion-icon>
@@ -71,57 +128,48 @@ type State = {
           <ion-label>Infos</ion-label>
         </ion-item>
         @if (roleService.isGrantedSeller()) {
-          <ion-item [button]="true" (click)="debug()">
+          <ion-item [button]="true" (click)="sell()">
             <ion-icon name="qr-code"></ion-icon>
             <ion-label>Vendre</ion-label>
           </ion-item>
         }
-        @if (roleService.isGrantedRedeemer()) {
-          <ion-item  [button]="true" (click)="debug()">
-            <ion-icon name="qr-code"></ion-icon>
-            <ion-label>Débiter</ion-label>
-          </ion-item>
-        }
         @if (roleService.isGrantedCustomer()) {
-          <ion-item [button]="true" (click)="debug()">
+          <ion-item [button]="true" (click)="associate()">
             <ion-icon name="qr-code"></ion-icon>
             <ion-label>Associer</ion-label>
           </ion-item>
         }
+        @if (roleService.isGrantedRedeemer()) {
+          <ion-item [button]="true" (click)="redeem()">
+            <ion-icon name="qr-code"></ion-icon>
+            <ion-label>Débiter</ion-label>
+          </ion-item>
+        }
       </ion-list>
 
-      <ion-modal trigger="open-modal" (willDismiss)="onWillDismiss($event)" (willPresent)="onWillPresent()">
+      <ion-modal (willPresent)="modalOnWillPresent()" (willDismiss)="modalOnWillDismiss($event)">
         <ng-template>
           <ion-header>
             <ion-toolbar>
-              <ion-buttons slot="start"><ion-button (click)="cancel()">Annuler</ion-button></ion-buttons>
+              <ion-buttons slot="start"><ion-button (click)="modalCancel()">Annuler</ion-button></ion-buttons>
               <ion-title>Validation</ion-title>
-              <ion-buttons slot="end"><ion-button (click)="confirm()" [strong]="true">Valider</ion-button></ion-buttons>
+              <ion-buttons slot="end"><ion-button (click)="modalConfirm()" [strong]="true">Valider</ion-button></ion-buttons>
             </ion-toolbar>
           </ion-header>
           <ion-content class="ion-padding" color="light">
-            <!--
-            <ion-item>
-              <ion-input
-                label="Enter your name"
-                labelPlacement="stacked"
-                type="text"
-                placeholder="Your name"
-                [(ngModel)]="name"
-              ></ion-input>
-            </ion-item>
-            -->
-
             <ion-list [inset]="true">
               <ion-item>
-                <ion-select label="Floating label" label-placement="floating" (ionChange)="handleChange($event)">
-                  @for (customer of state().customers; track $index) {
-                    <ion-select-option [value]="customer.email">{{ customer.email }}</ion-select-option>
-                  }
-                </ion-select>
+                @if (modalState().modalType === ModalType.Sell || modalState().modalType === ModalType.Associate) {
+                  <ion-select label="Email" label-placement="floating" (ionChange)="modalCustomersHandleChange($event)">
+                    @for (customer of modalState().customers; track $index) {
+                      <ion-select-option [value]="customer.email">{{ customer.email }}</ion-select-option>
+                    }
+                  </ion-select>
+                } @else if (modalState().modalType === ModalType.Redeem) {
+                  <ion-input label="Montant" type="number" (ionChange)="modalRedeemHandleChange($event)"></ion-input>
+                }
               </ion-item>
             </ion-list>
-
           </ion-content>
         </ng-template>
       </ion-modal>
@@ -130,8 +178,6 @@ type State = {
   styles: ``,
 })
 export class GiftCardComponent {
-  // @ViewChild(IonModal) modal!: IonModal;
-
   modal = viewChild.required(IonModal);
 
   authService = inject(AuthService);
@@ -144,51 +190,91 @@ export class GiftCardComponent {
   state = signal<State>({
     qrCodeValue: null,
     giftCardInfos: null,
-    customers: [],
-    customer: null,
   });
+
+  modalState = signal<ModalState>({
+    modalType: null,
+    customers: [],
+    selectedCustomer: null,
+    selectedAmount: null,
+  });
+
+  ModalType = ModalType;
 
   constructor() {
     addIcons({ bug, qrCode });
   }
 
-  open() {
+  modalOpen() {
     this.modal().present();
   }
 
-  cancel() {
+  modalCancel() {
     this.modal().dismiss();
   }
 
-  confirm() {
+  modalConfirm() {
     this.modal().dismiss(null, 'confirm');
   }
 
-  onWillPresent() {
-    this.customerService.all().subscribe(res => this.state.update(s => ({ ...s, customers: res })));
+  modalOnWillPresent() {
+    const modalType = this.modalState().modalType;
+
+    if (modalType === ModalType.Sell || modalType === ModalType.Associate) {
+      this.customerService.all().subscribe(res => this.state.update(s => ({ ...s, customers: res })));
+    }
   }
 
-  onWillDismiss(event: CustomEvent<OverlayEventDetail>) {
-    const role = event.detail.role;
+  modalOnWillDismiss(event: CustomEvent<OverlayEventDetail>) {
     const qrCodeValue = this.state().qrCodeValue;
-    const customer = this.state().customer;
 
-    if (role === 'confirm' && qrCodeValue && customer) {
-      this.giftCardService.sell(qrCodeValue, customer).subscribe();
+    if (event.detail.role !== 'confirm' || !qrCodeValue) {
+      this.state.update(s => ({ ...s, qrCodeValue: null, customers: [], customer: null }));
+
+      return;
     }
 
-    this.state.update(s => ({ ...s, qrCodeValue: null, customers: [], customer: null }));
+    const modalType = this.modalState().modalType;
+
+    if (modalType === ModalType.Sell) {
+      const customer = this.modalState().selectedCustomer;
+
+      if (!customer) return;
+
+      this.giftCardService.sell(qrCodeValue, customer).subscribe();
+    } else if (modalType === ModalType.Associate) {
+      const customer = this.modalState().selectedCustomer;
+
+      if (!customer) return;
+
+      this.giftCardService.associate(qrCodeValue, customer).subscribe();
+    } else if (modalType === ModalType.Redeem) {
+      const amount = this.modalState().selectedAmount;
+
+      if (!amount) return;
+
+      this.giftCardService.redeem(qrCodeValue, amount).subscribe();
+    }
+
+    this.statesReset();
   }
 
-  handleChange(event: Event) {
-    const target = event.target as HTMLIonSelectElement;
+  modalCustomersHandleChange(event: Event) {
+    const customer = this.modalState().customers.find(c => c.email === (event.target as HTMLIonSelectElement).value);
 
-    this.state.update(s => ({ ...s, customer: this.state().customers.find(c => c.email === target.value) ?? null }));
+    this.modalState.update(s => ({ ...s, selectedCustomer: customer ? (customer as CustomerRequestDto) : null }));
   }
 
-  debug() {
-    this.modal().present();
+  modalRedeemHandleChange(event: Event) {
+    let value = (event.target as HTMLIonInputElement).value ?? null;
+
+    if (typeof value === 'string') value = parseInt(value);
+    if (typeof value === 'number') value = Math.floor(value);
+
+    this.modalState.update(s => ({ ...s, selectedAmount: value ? ({ amount: value } as RedeemRequestDto) : null }));
   }
+
+  debug() {}
 
   async infos() {
     await this.scan();
@@ -207,28 +293,48 @@ export class GiftCardComponent {
 
     if (!qrCodeValue) return;
 
-    this.modal().present();
+    this.modalState.update(s => ({ ...s, modalType: ModalType.Sell }));
 
-    console.log(qrCodeValue);
+    this.modal().present();
+  }
+
+  async associate() {
+    await this.scan();
+
+    const qrCodeValue = this.state().qrCodeValue;
+
+    if (!qrCodeValue) return;
+
+    this.modalState.update(s => ({ ...s, modalType: ModalType.Associate }));
+
+    this.modal().present();
+  }
+
+  async redeem() {
+    await this.scan();
+
+    const qrCodeValue = this.state().qrCodeValue;
+
+    if (!qrCodeValue) return;
+
+    this.modalState.update(s => ({ ...s, modalType: ModalType.Redeem }));
+
+    this.modal().present();
   }
 
   private async scan() {
     try {
       const barcode = await CapacitorBarcodeScanner.scanBarcode({ hint: CapacitorBarcodeScannerTypeHint.QR_CODE });
 
-      this.qrCodeValueSet(barcode.ScanResult);
+      this.state.update(s => ({ ...s, qrCodeValue: barcode.ScanResult }));
     } catch (e) {
-      console.log(e);
-
-      this.qrCodeValueReset();
+      this.statesReset();
     }
   }
 
-  private qrCodeValueSet(value: string) {
-    this.state.update(s => ({ ...s, qrCodeValue: value }));
-  }
+  private statesReset() {
+    this.state.update(s => ({ ...s, qrCodeValue: null, giftCardInfos: null }));
 
-  private qrCodeValueReset() {
-    this.state.update(s => ({ ...s, qrCodeValue: null }));
+    this.modalState.update(s => ({ ...s, modalType: null, customers: [], selectedCustomer: null }));
   }
 }

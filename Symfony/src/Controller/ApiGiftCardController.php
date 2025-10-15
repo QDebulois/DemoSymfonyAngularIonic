@@ -5,12 +5,21 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Dto\Factory\Response\GiftCardResponseDtoFactory;
+use App\Dto\Request\CustomerRequestDto;
+use App\Dto\Request\RedeemRequestDto;
 use App\Entity\GiftCard;
+use App\Entity\GiftCardUsage;
+use App\Entity\Redeemer;
 use App\Enum\RoleEnum;
+use App\Repository\CustomerRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -34,21 +43,20 @@ final class ApiGiftCardController extends AbstractController
     #[IsGranted(RoleEnum::SELLER->value)]
     #[Route('gift-card/{gift_card_code}/sell', name: 'api_giftcard_sell')]
     public function sell(
-        #[MapEntity(mapping: ['code' => 'gift_card_code'])]
+        #[MapEntity(mapping: ['gift_card_code' => 'code'])]
         GiftCard $giftCard,
+        #[MapRequestPayload()]
+        CustomerRequestDto $customerRequestDto,
+        EntityManagerInterface $entityManager,
+        CustomerRepository $customerRepository,
     ): Response {
-        dump($giftCard);
+        if (!$customer = $customerRepository->findOneBy(['email' => $customerRequestDto->email])) {
+            throw new NotFoundHttpException();
+        }
 
-        return new Response();
-    }
+        $giftCard->setBoughtBy($customer);
 
-    #[IsGranted(RoleEnum::REDEEMER->value)]
-    #[Route('gift-card/{gift_card_code}/redeem', name: 'api_giftcard_redeem')]
-    public function redeem(
-        #[MapEntity(mapping: ['code' => 'gift_card_code'])]
-        GiftCard $giftCard,
-    ): Response {
-        dump($giftCard);
+        $entityManager->flush();
 
         return new Response();
     }
@@ -56,10 +64,54 @@ final class ApiGiftCardController extends AbstractController
     #[IsGranted(RoleEnum::CUSTOMER->value)]
     #[Route('gift-card/{gift_card_code}/associate', name: 'api_giftcard_associate')]
     public function associate(
-        #[MapEntity(mapping: ['code' => 'gift_card_code'])]
+        #[MapEntity(mapping: ['gift_card_code' => 'code'])]
         GiftCard $giftCard,
+        #[MapRequestPayload()]
+        CustomerRequestDto $customerRequestDto,
+        EntityManagerInterface $entityManager,
+        CustomerRepository $customerRepository,
     ): Response {
-        dump($giftCard);
+        if (!$customer = $customerRepository->findOneBy(['email' => $customerRequestDto->email])) {
+            throw new NotFoundHttpException();
+        }
+
+        $giftCard->setAssociatedTo($customer);
+
+        $entityManager->flush();
+
+        return new Response();
+    }
+
+    #[IsGranted(RoleEnum::REDEEMER->value)]
+    #[Route('gift-card/{gift_card_code}/redeem', name: 'api_giftcard_redeem')]
+    public function redeem(
+        #[MapEntity(mapping: ['gift_card_code' => 'code'])]
+        GiftCard $giftCard,
+        #[MapRequestPayload()]
+        RedeemRequestDto $redeemRequestDto,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        if ($redeemRequestDto->amount > $giftCard->getRemainingAmount()) {
+            throw new BadRequestHttpException();
+        }
+
+        /** @var Redeemer $redeemer */
+        $redeemer = $this->getUser();
+
+        $giftCardUsage = (new GiftCardUsage())
+            ->setGiftCard($giftCard)
+            ->setUsedAmount($redeemRequestDto->amount)
+            ->setUsedAt(new \DateTimeImmutable())
+            ->setUsedTo($redeemer)
+        ;
+
+        $giftCard
+            ->setRemainingAmount($giftCard->getRemainingAmount() - $redeemRequestDto->amount)
+            ->addGiftCardUsage($giftCardUsage)
+        ;
+
+        $entityManager->persist($giftCardUsage);
+        $entityManager->flush();
 
         return new Response();
     }
