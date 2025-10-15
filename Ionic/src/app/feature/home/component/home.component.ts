@@ -68,7 +68,5 @@ export class HomeComponent {
     addIcons({ bug });
   }
 
-  debug() {
-    this.customerService.all().subscribe(res => console.log(res));
-  }
+  debug() {}
 }

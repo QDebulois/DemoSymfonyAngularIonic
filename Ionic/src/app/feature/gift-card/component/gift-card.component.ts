@@ -30,6 +30,7 @@ import { GiftCardResponseDto, GiftCardService, RedeemRequestDto } from '../servi
 import { CustomerRequestDto, CustomerResponseDto, CustomerService } from '../service/customer.service';
 import { addIcons } from 'ionicons';
 import { bug, qrCode } from 'ionicons/icons';
+import { ToastService } from 'src/app/shared/service/toast.service';
 
 type State = {
   giftCardInfos: GiftCardResponseDto | null;
@@ -181,6 +182,7 @@ export class GiftCardComponent {
   roleService = inject(RoleService);
   giftCardService = inject(GiftCardService);
   customerService = inject(CustomerService);
+  toastService = inject(ToastService);
 
   state = signal<State>({
     qrCodeValue: null,
@@ -236,13 +238,19 @@ export class GiftCardComponent {
 
       if (!customer) return;
 
-      this.giftCardService.sell(qrCodeValue, customer).subscribe();
+      this.giftCardService.sell(qrCodeValue, customer).subscribe({
+        next: () => this.toastService.setMessage("Cheque cadeau vendu, scannez pour plus d'infos").setOpen(true),
+        error: () => this.toastService.setMessage('Une erreur est survenue').setOpen(true),
+      });
     } else if (modalType === ModalType.Redeem) {
       const amount = this.modalState().selectedAmount;
 
       if (!amount) return;
 
-      this.giftCardService.redeem(qrCodeValue, amount).subscribe();
+      this.giftCardService.redeem(qrCodeValue, amount).subscribe({
+        next: () => this.toastService.setMessage(`Cheque cadeau débité (${amount}), scannez pour plus d'infos`).setOpen(true),
+        error: () => this.toastService.setMessage('Une erreur est survenue').setOpen(true),
+      });
     }
 
     this.statesReset();
@@ -292,7 +300,10 @@ export class GiftCardComponent {
 
     if (!qrCodeValue) return;
 
-    this.giftCardService.associate(qrCodeValue).subscribe();
+    this.giftCardService.associate(qrCodeValue).subscribe({
+      next: () => this.toastService.setMessage("Cheque cadeau associé, scannez pour plus d'infos").setOpen(true),
+      error: () => this.toastService.setMessage('Une erreur est survenue').setOpen(true),
+    });
   }
 
   async redeem() {
