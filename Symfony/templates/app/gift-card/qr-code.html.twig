@@ -20,6 +20,8 @@
           <li>Vendu par: <strong>{{ seller ? seller.username : 'N/A' }}</strong></li>
           <li>Vendu à: <strong>{{ customer ? customer.email : 'N/A' }}</strong></li>
           <li>Associé à: <strong>{{ associatedTo ? associatedTo.email : 'N/A' }}</strong></li>
+          <li>Montant initial: <strong>{{ giftCard.initialAmount }}</strong></li>
+          <li>Montant restant: <strong>{{ giftCard.remainingAmount }}</strong></li>
         </ul>
 
         <div class="p-5 d-flex justify-content-center">

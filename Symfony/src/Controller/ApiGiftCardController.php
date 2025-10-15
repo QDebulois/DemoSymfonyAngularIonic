@@ -94,6 +94,10 @@ final class ApiGiftCardController extends AbstractController
         RedeemRequestDto $redeemRequestDto,
         EntityManagerInterface $entityManager,
     ): Response {
+        if (!$giftCard->getAssociatedTo()) {
+            return new Response(status: Response::HTTP_BAD_REQUEST);
+        }
+
         if ($redeemRequestDto->amount > $giftCard->getRemainingAmount()) {
             return new Response(status: Response::HTTP_BAD_REQUEST);
         }

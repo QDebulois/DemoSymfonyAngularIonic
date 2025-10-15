@@ -87,6 +87,8 @@
               <th scope="col">Vendu par</th>
               <th scope="col">Vendu à</th>
               <th scope="col">Associé à</th>
+              <th scope="col">Montant initial</th>
+              <th scope="col">Montant restant</th>
               <th scope="col"></th>
             </tr>
           </thead>
@@ -111,6 +113,12 @@
                 </td>
                 <td>
                   <span>{{ associatedTo ? associatedTo.email : 'N/A' }}</span>
+                </td>
+                <td>
+                  <span>{{ giftCard.initialAmount }}</span>
+                </td>
+                <td>
+                  <span>{{ giftCard.remainingAmount }}</span>
                 </td>
                 <td>
                   <a href="{{ path('app_giftcard_qrcode', { giftcard_id: giftCard.id }) }}" class="btn btn-primary me-2">

@@ -157,7 +157,7 @@ enum ModalType {
               <ion-item>
                 @if (modalState().modalType === ModalType.Sell) {
                   <ion-select label="Email" label-placement="floating" (ionChange)="modalCustomersHandleChange($event)">
-                    @for (customer of modalState().customers; track $index) {
+                    @for (customer of modalState().customers; track customer.email) {
                       <ion-select-option [value]="customer.email">{{ customer.email }}</ion-select-option>
                     }
                   </ion-select>
@@ -218,7 +218,7 @@ export class GiftCardComponent {
     const modalType = this.modalState().modalType;
 
     if (modalType === ModalType.Sell) {
-      this.customerService.all().subscribe(res => this.state.update(s => ({ ...s, customers: res })));
+      this.customerService.all().subscribe(res => this.modalState.update(s => ({ ...s, customers: res })));
     }
   }
 
@@ -331,6 +331,6 @@ export class GiftCardComponent {
   private statesReset() {
     this.state.update(s => ({ ...s, qrCodeValue: null, giftCardInfos: null }));
 
-    this.modalState.update(s => ({ ...s, modalType: null, customers: [], selectedCustomer: null }));
+    this.modalState.update(s => ({ ...s, modalType: null, customers: [], selectedCustomer: null, selectedAmount: null }));
   }
 }
