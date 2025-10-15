@@ -218,6 +218,8 @@ export class GiftCardComponent {
 
       this.qrCodeValueSet(barcode.ScanResult);
     } catch (e) {
+      console.log(e);
+
       this.qrCodeValueReset();
     }
   }

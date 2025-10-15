@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Dto\Factory\Response\GiftCardResponseDtoFactory;
-use App\Dto\Response\GiftCardInfosResponseDto;
 use App\Entity\GiftCard;
 use App\Enum\RoleEnum;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 

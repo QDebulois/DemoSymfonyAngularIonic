@@ -7,11 +7,11 @@ import { BehaviorSubject, filter, Observable, switchMap } from 'rxjs';
 const isRefreshingDone$: BehaviorSubject<boolean> = new BehaviorSubject(true);
 
 export function apiAuthInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {
+  const authService = inject(AuthService);
+
   if (!req.url.startsWith(environment.API_ENDPOINT)) {
     return next(req);
   }
-
-  const authService = inject(AuthService);
 
   const token = authService.retrieveToken();
 
