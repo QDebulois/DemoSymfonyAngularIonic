@@ -248,7 +248,7 @@ export class GiftCardComponent {
       if (!amount) return;
 
       this.giftCardService.redeem(qrCodeValue, amount).subscribe({
-        next: () => this.toastService.setMessage(`Cheque cadeau débité (${amount}), scannez pour plus d'infos`).setOpen(true),
+        next: () => this.toastService.setMessage(`Cheque cadeau débité (${amount.amount}), scannez pour plus d'infos`).setOpen(true),
         error: () => this.toastService.setMessage('Une erreur est survenue').setOpen(true),
       });
     }
