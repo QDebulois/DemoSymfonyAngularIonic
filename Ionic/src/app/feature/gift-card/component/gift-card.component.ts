@@ -117,16 +117,12 @@ enum ModalType {
         }
       </ion-list>
       <ion-list [inset]="true">
-        <ion-item [button]="true" (click)="debug()">
-          <ion-icon name="bug"></ion-icon>
-          <ion-label>Debug</ion-label>
-        </ion-item>
-      </ion-list>
-      <ion-list [inset]="true">
         <ion-item [button]="true" (click)="infos()">
           <ion-icon name="qr-code"></ion-icon>
           <ion-label>Infos</ion-label>
         </ion-item>
+      </ion-list>
+      <ion-list [inset]="true">
         @if (roleService.isGrantedSeller()) {
           <ion-item [button]="true" (click)="sell()">
             <ion-icon name="qr-code"></ion-icon>
@@ -273,8 +269,6 @@ export class GiftCardComponent {
 
     this.modalState.update(s => ({ ...s, selectedAmount: value ? ({ amount: value } as RedeemRequestDto) : null }));
   }
-
-  debug() {}
 
   async infos() {
     await this.scan();
