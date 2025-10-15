@@ -10,10 +10,16 @@
       </div>
 
       <div class="card-body">
+
+        <div class="p-2 d-flex justify-content-center">
+          <img width="200" src="data:image/png;base64,{{ qrCode }}">
+        </div>
+
         {% set seller = giftCard.onSaleBy %}
         {% set customer = giftCard.boughtBy %}
         {% set associatedTo = giftCard.associatedTo %}
 
+        <h3>Informations</h3>
         <ul>
           <li>Code: <strong>{{ giftCard.code }}</strong></li>
           <li>Status: <strong>{{ (giftCard|giftCardStatus).label() }}</strong></li>
@@ -24,9 +30,19 @@
           <li>Montant restant: <strong>{{ giftCard.remainingAmount }}</strong></li>
         </ul>
 
-        <div class="p-5 d-flex justify-content-center">
-          <img width="200" src="data:image/png;base64,{{ qrCode }}">
-        </div>
+        <h3>Utilisations</h3>
+        <ul>
+          {% for giftCardUsage in giftCard.giftCardUsages %}
+            <li>
+              <ul>
+                <li>Utilisé chez: <strong>{{ giftCardUsage.usedTo.username }}</strong></li>
+                <li>Utilisé le: <strong>{{ giftCardUsage.usedAt|date('Y-m-d H:i:s') }}</strong></li>
+                <li>Montant: <strong>{{ giftCardUsage.usedAmount }}</strong></li>
+              </ul>
+            </li>
+          {% endfor %}
+        </ul>
+
       </div>
     </div>
   </main>
