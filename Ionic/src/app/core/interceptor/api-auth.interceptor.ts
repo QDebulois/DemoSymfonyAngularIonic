@@ -29,7 +29,7 @@ export function apiAuthInterceptor(req: HttpRequest<unknown>, next: HttpHandlerF
   const dateExp = new Date(tokenPayload.exp * 1000);
 
   if (dateExp > dateNow) {
-    return setTokenAndNext(req, next);
+    return setTokenAndNext(req, next, authService);
   }
 
   if (true === isRefreshingDone$.getValue()) {
@@ -39,13 +39,11 @@ export function apiAuthInterceptor(req: HttpRequest<unknown>, next: HttpHandlerF
 
   return isRefreshingDone$.pipe(
     filter(isRefreshingDone => isRefreshingDone),
-    switchMap(() => setTokenAndNext(req, next)),
+    switchMap(() => setTokenAndNext(req, next, authService)),
   );
 }
 
-function setTokenAndNext(req: HttpRequest<unknown>, next: HttpHandlerFn) {
-  const authService = inject(AuthService);
-
+function setTokenAndNext(req: HttpRequest<unknown>, next: HttpHandlerFn, authService: AuthService) {
   const token = authService.retrieveToken();
 
   if (!token) {
